@@ -17,8 +17,8 @@ export default function App() {
     return (<>
         <NativeRouter>  
             <Route exact path="/" component={Welcome} />
-            <Route  path="/login" component={LoginPage} />
-            <Route  path="/signin" component={SigninPage} />
+            <Route path="/login" component={LoginPage} />
+            <Route path="/signin" component={SigninPage} />
             <Route path="/feed" component={Feed} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/notification" component={NotificationPage} />

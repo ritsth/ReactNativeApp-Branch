@@ -8,6 +8,7 @@ import {
     TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight,
     Platform, Dimensions, ImageBackground, TextInput, ScrollView,
 } from 'react-native';
+
 import axios from 'axios';
 import { Card, ListItem, Icon } from 'react-native-elements'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -21,7 +22,7 @@ import Comments from './comments';
 
 
 const SLIDER_WIDTH = Dimensions.get('window').width;
-const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.9);
+const ITEM_WIDTH = Math.round(SLIDER_WIDTH * 0.95);
 const ITEM_HEIGHT = Math.round(ITEM_WIDTH * 3 / 4);
 
 export default function Posts({posts}) {
@@ -29,9 +30,9 @@ export default function Posts({posts}) {
     const pub_date = (new Date(posts.pub_date)).toString().replace(/\S+\s(\S+)\s(\d+)\s(\d+)\s.*/, '$1 $2, $3');
     const navigation = useNavigation();
     const [commentText, onChangeCommentText] = React.useState(null);
-    const [modalOptions, setModalOptions] = React.useState(false);
     const [modalViewComment, setModalViewComment] = React.useState(false);
     const [modalPostComment, setModalPostComment] = React.useState(false);
+    const [modalCommentDelete, setModalCommentDelete] = React.useState(false);
 
     const [error, setError] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
@@ -78,17 +79,17 @@ export default function Posts({posts}) {
     })
     const readData = async () => {
         try {
-            const user = await AsyncStorage.getItem('@username');
-            setUser({ username: user });
+            //const user = await AsyncStorage.getItem('@username');
+            //setUser({ username: user });
             var refresh_token = await AsyncStorage.getItem('refresh_token');
             var access_token = await AsyncStorage.getItem('access_token');
+            setToken({ access_token });
             var decode = jwt_decode(refresh_token);
             const Id = parseInt(decode.user_id);
             setUserId({ id: Id });
-            setToken({ access_token });
         } catch (e) {
-            alert(e);
-            alert('Failed to fetch the data from storage');
+            setToken({ access_token:null });
+            alert(e+"  "+'failed to fetch data');
         }
     };
     const baseURL = 'https://branchappxzy.herokuapp.com/';
@@ -103,7 +104,7 @@ export default function Posts({posts}) {
             accept: 'application/json',
         },
     });
-    const render = () => {
+    const renderComment = () => {
         axiosInstance.get('comment/').then((res) => {
             const Data = res.data;
             setCommentData({ comments: Data });
@@ -123,16 +124,14 @@ export default function Posts({posts}) {
             setError(true)
         });*/
         readData();
-        render();
+        renderComment();
 
         axiosInstance.get(`profile_photo/${posts.user}/`).then((res) => {
             const Data = res.data;
             setProfilePhoto({ data: Data });
             setLoading(false);
         }).catch((err) => {
-            if (err = 'Request failed with status code 500') {
-                setError(true)
-            }
+            alert(err)
         });
 
     }, [setProfilePhoto, setUserData,
@@ -148,7 +147,7 @@ export default function Posts({posts}) {
             }).then((res) => {
                 setModalPostComment(false);
                 setModalViewComment(false);
-                render();
+                renderComment();
             });
         } catch(err){
             alert(JSON.stringify(err));
@@ -156,23 +155,12 @@ export default function Posts({posts}) {
 
     };
 
-    const deletePost = (e) => {
-        try {
-            axiosInstance.delete(`allPosts/${posts.id}/`).then((res) => {
-                setModalVisible(false);
-            });
-        } catch (err) {
-            alert(JSON.stringify(err));
-        }
 
-    };
-    const editPost = (e) => {
-        alert("under Construction");
-    };
     const linkToOthers = () => {
         navigation.navigate('OthersProfile', {
             userid: posts.user,
-            name: posts.user_name3
+            name: posts.user_name3,
+            allow:'positive'
         })
 
     }
@@ -180,95 +168,6 @@ export default function Posts({posts}) {
      
         <View 
             style={styles.container}>
-
-
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalOptions}
-          
-            >
-                <View style={styles.centeredView} >
-                    <View style={styles.modalView}>
-               
-                            <Divider 
-                                style={{
-                                    borderWidth: 0.3,
-                                    width: 375,
-                                    borderColor: "grey",
-                                    padding: 8,
-                                    borderLeftColor: "white",
-                                    borderRightColor: "white",
-                                    borderTopColor:"white"
-                                }} 
-                            >
-                                <Button 
-                                    onPress={deletePost}
-                                    color="red"
-                                    title='Delete'
-                                />
-                            </Divider>
-                            <Divider style={{
-                                borderWidth: 0.3,
-                                width: 375,
-                                borderColor: "grey",
-                                padding: 8,
-                                borderLeftColor: "white",
-                                borderRightColor: "white",
-                                borderBottomColor: "white",
-                                borderTopWidth: 0.1,
-                                
-                            }} >
-                            <Button
-                                color="black"
-                                onPress={editPost}
-                                title='Edit'
-                            />
-                            </Divider>
-
-                    </View>
-                </View>
-
-                <View style={{
-                    bottom: 270,
-                    alignItems: "center",
-
-                }} >
-                    <View style={{
-                        margin: 20,
-                        borderRadius: 15,
-                        backgroundColor: "white",
-                        opacity:1,
-                        padding: 5,
-                        alignItems: "center",
-                        shadowColor: "black",
-                        shadowOffset: {
-                            width: 0,
-                            height: 2
-                        },
-                        shadowRadius: 50,
-                        elevation: 17
-                    }}>
-                        <Divider style={{
-                            borderWidth: 0.3,
-                            width: 375,
-                            borderColor: "grey",
-                            padding: 7,
-                            borderLeftColor: "white",
-                            borderRightColor: "white",
-                            borderTopWidth: 0.1,
-                            borderBottomColor: "white"
-                        }} >
-                            <Button
-                                color="black"
-                                onPress={() => setModalVisible(!modalOptions)}
-                                title='Cancel'
-                            />
-                        </Divider>
-                    </View>
-                </View>
-
-            </Modal>
 
             <Modal
                 animationType="slide"
@@ -279,60 +178,63 @@ export default function Posts({posts}) {
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={styles.avoidingView}
                 >
-                    <View style={styles.CommentView} >
-                        <View style={styles.CommentModal}>
+                    <TouchableWithoutFeedback 
+                            onPressOut={()=>setModalPostComment(false)}>
+                        <View style={styles.CommentView} >
+                            <View style={styles.CommentModal}>
 
-                            <ScrollView keyboardShouldPersistTaps={'always'}
-                                onScrollEndDrag={() => setModalPostComment(false)} >
-                                <View style={{
-                                    flexDirection: "row",
-                                    marginTop: 15,
-                                }}>
-                         
-                                    <MaterialCommunityIcons
-                                        name="dots-horizontal"
-                                        size={27}
-                                        onPress={() => setModalPostComment(false)}
-                                     />
-                                    <Text
-                                        style={{
-                                            fontSize: 20,
-                                            fontWeight: "bold",
-                                            marginLeft:95
-                                        }}>
-                                    
-                                        Add comment
-                                    </Text>
-                                </View>
-                                <TextInput 
-                                    autoFocus={true}
-                                    placeholder="Drop your thoughts on this plant ..."
-                                    style={styles.commentInput}
-                                    onChangeText={onChangeCommentText}
-                                    onSubmitEditing={postComment}
+                                <ScrollView keyboardShouldPersistTaps={'always'}
+                                    onScrollEndDrag={() => setModalPostComment(false)} >
+                                    <View style={{
+                                        flexDirection: "row",
+                                        marginTop: 15,
+                                    }}>
+                            
+                                        <MaterialCommunityIcons
+                                            name="close"
+                                            size={27}
+                                            onPress={() => setModalPostComment(false)}
+                                        />
+                                        <Text
+                                            style={{
+                                                fontSize: 20,
+                                                fontWeight: "bold",
+                                                marginLeft:95
+                                            }}>
+                                        
+                                            Add comment
+                                        </Text>
+                                    </View>
+                                    <TextInput 
+                                        autoFocus={true}
+                                        placeholder="Drop your thoughts on this plant ..."
+                                        style={styles.commentInput}
+                                        onChangeText={onChangeCommentText}
+                                        onSubmitEditing={postComment}
 
-                                />
-                                <View style={{
-                                    fontWeight: "bold",
-                                    backgroundColor: colors.secondary,
-                                    borderRadius: 30,
-                                    alignSelf: "flex-end",
-                                    padding: 3,
-                                }}>
-                                    <Button 
-                                        onPress={postComment}
-                                        color="white"
-                                        title='Post'
                                     />
-                                </View>
-                            </ScrollView>
+                                    <View style={{
+                                        fontWeight: "bold",
+                                        backgroundColor: colors.secondary,
+                                        borderRadius: 30,
+                                        alignSelf: "flex-end",
+                                        padding: 3,
+                                    }}>
+                                        <Button 
+                                            onPress={postComment}
+                                            color="white"
+                                            title='Post'
+                                        />
+                                    </View>
+                                </ScrollView>
 
+                            </View>
                         </View>
-                    </View>
+                    </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
 
             </Modal>
-
+            
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -342,122 +244,218 @@ export default function Posts({posts}) {
                     behavior={Platform.OS === "ios" ? "padding" : "height"}
                     style={styles.avoidingView}
                 >
-                    <View style={styles.CommentView} >
-                        <View style={styles.postCommentModal}>
+                    <TouchableWithoutFeedback 
+                            onPressOut={()=>setModalViewComment(false)}>
+                        <View style={styles.CommentView} >
+                            <View style={styles.postCommentModal}>
 
-                            <View style={{
-                                flexDirection: "row",
-                                marginTop: 18,
-                                margin: 10
-                            }}>
-                                <MaterialCommunityIcons
-                                    name="dots-horizontal"
-                                    size={27}
-                                    onPress={() => setModalViewComment(false)}
-                                />
-                                <ScrollView keyboardShouldPersistTaps={'handled'}
-                                    onScrollEndDrag={() => setModalViewComment(false)} >
-
-                                    <Text 
-                                        style={{
-                                            fontSize: 20,
-                                            fontWeight: "bold",
-                                            left: 115
-                                        }}>
-
-                                        Comments
-                                        </Text>
-                                </ScrollView>
-                            </View>
-
-                            <ScrollView keyboardShouldPersistTaps={'handled'}>
-                                {loading == false ?
-                                    (commentData.comments.filter((filter) => filter.post == posts.id).map((comment) => {
-                                        return (
-                                            <Comments  
-                                                key={comment.id}
-                                                comment={comment}
-                                                posts={posts}
-                                                width={40}
-                                                height={40}
-                                                fontSize={16}
-                                                fontSize2={14}
-                                                fontSize3={18.5}
-                                                margin={10}
-                                                marginBottom={0}
-                                                bottom={25}
-                                            />
-                                        )
-                                    })) :
-                                    (<Text style={{
-                                        alignSelf: 'center',
-                                        justifyContent: 'center',
-                                    }}
-                                    >LOADING ...</Text>)}
-                            </ScrollView>
-
-
-                            <View
-                                style={{
-                                    marginBottom: 15,
-                                    flexDirection: 'row',
-                                    margin: 5
+                                <View style={{
+                                    flexDirection: "row",
+                                    marginTop: 18,
+                                    margin: 10,
                                 }}>
+                                
+                                    <ScrollView keyboardShouldPersistTaps={'handled'}
+                                        onScrollEndDrag={() => setModalViewComment(false)} >
+                                        <MaterialCommunityIcons
+                                            name="close"
+                                            size={27}
+                                            onPress={() => setModalViewComment(false)}
+                                        />
+                                        <Text 
+                                            style={{
+                                                fontSize:18,
+                                                fontWeight: "bold",
+                                                alignSelf:'center'
+                                            }}>
 
-                                <Image
-                                    source={{
-                                        uri: loading == false ?
-                                            (`${profilePhoto.data.Profile_photo}`) :
-                                            ('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')
-                                    }}
-                                    style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: 50,
-                                        marginRight: 10,
-                                        marginTop: 7
-                                    }}
-                                />
-                                <TextInput
-                                    autoFocus={true}
-                                    placeholder="Add a comment"
-                                    onChangeText={onChangeCommentText}
-                                    style={{
-                                        fontSize: 16.5,
-                                        top: 5,
-                                        borderColor: "lightgrey",
-                                        borderWidth: 0.4,
-                                        width: 300,
-                                        height: 45,
-                                        padding: 10,
-                                        borderRadius: 40,
-
-                                    }}
-                                    onSubmitEditing={postComment}
-                                />
-                                <View style={{ 
-                                    marginTop: 10,
-                                }}>
-                                    <Button
-                                        onPress={postComment}
-                                        title='Post'
-                                    />
+                                            Comments
+                                            </Text>
+                                    </ScrollView>
                                 </View>
+
+                                <ScrollView keyboardShouldPersistTaps={'handled'}>
+                                    {loading == false ?
+                                        (commentData.comments.filter((filter) => filter.post == posts.id).map((comment) => {
+                                            return (<>
+                                                <Modal
+                                                    animationType="slide"
+                                                    transparent={true}
+                                                    visible={modalCommentDelete}
+
+                                                >
+                                                    <View style={styles.centeredView} >
+                                                        <View style={styles.modalView}>
+
+                                                            <Divider
+                                                                style={{
+                                                                    borderWidth: 0,
+                                                                    width: 375,
+                                                                    borderColor: "white",
+                                                                    padding: 8,
+                                                                    borderBottomWidth:0,
+                                                                }}
+                                                            >
+                                                                <Button
+                                                                    onPress={()=>{
+                                                                        axiosInstance.delete(`comment/${comment.id}/`).then((res) => {
+                                                                            setModalCommentDelete(false);
+                                                                            renderComment();
+                                                                        })
+                                                                    }}
+                                                                    color="red"
+                                                                    title='Delete'
+                                                                />
+                                                            </Divider>
+                                                        </View>
+                                                    </View>
+
+                                                    <View style={{
+                                                        bottom: "42%",
+                                                        alignItems: "center",
+
+                                                    }} >
+                                                        <View style={{
+                                                            margin: 20,
+                                                            borderRadius: 15,
+                                                            backgroundColor: "white",
+                                                            opacity: 1,
+                                                            padding: 5,
+                                                            alignItems: "center",
+                                                            shadowColor: "black",
+                                                            shadowOffset: {
+                                                                width: 0,
+                                                                height: 2
+                                                            },
+                                                            shadowRadius: 50,
+                                                            elevation: 17
+                                                        }}>
+                                                            <Divider style={{
+                                                                borderWidth: 0,
+                                                                width: 375,
+                                                                borderColor: "grey",
+                                                                padding: 7,
+                                                                borderTopWidth: 0,
+                                                                borderBottomWidth:0
+                                                            }} >
+                                                                <Button
+                                                                    color="black"
+                                                                    onPress={() => setModalCommentDelete(!modalCommentDelete)}
+                                                                    title='Cancel'
+                                                                />
+                                                            </Divider>
+                                                        </View>
+                                                    </View>
+
+                                                </Modal>
+
+                                                {userId.id === comment.user ? (
+                                                    <TouchableOpacity 
+                                                        style={{
+                                                            alignSelf:"flex-end",
+                                                            top:"8%",
+                                                            zIndex:1
+                                                        }}
+                                                        onPress={() => 
+                                                        setModalCommentDelete(true)} >
+                                                        <Text
+                                                            style={{
+                                                                fontSize:14,
+                                                            }}>
+                                                            <MaterialCommunityIcons
+                                                                name="dots-horizontal"
+                                                                size={23}
+                                                            />
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                ): (null)}
+                                                <Comments  
+                                                    key={comment.id}
+                                                    comment={comment}
+                                                    posts={posts}
+                                                    width={40}
+                                                    height={40}
+                                                    fontSize={16}
+                                                    fontSize2={14}
+                                                    fontSize3={18.5}
+                                                    margin={10}
+                                                    marginBottom={0}
+                                                    bottom={25}
+                                                />
+                                            </>)
+                                        })) :
+                                        (<Text style={{
+                                            alignSelf: 'center',
+                                            justifyContent: 'center',
+                                        }}
+                                        >LOADING ...</Text>)}
+                                </ScrollView>
+
+
+                                <View
+                                    style={{
+                                        marginBottom: 15,
+                                        flexDirection: 'row',
+                                        margin: 5
+                                    }}>
+
+                                    <Image
+                                        source={{
+                                            uri: loading == false ?
+                                                (`${profilePhoto.data.Profile_photo}`) :
+                                                ('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')
+                                        }}
+                                        style={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: 50,
+                                            marginRight: 10,
+                                            marginTop: 7
+                                        }}
+                                    />
+                                    <TextInput
+                                        autoFocus={true}
+                                        placeholder="Add a comment"
+                                        onChangeText={onChangeCommentText}
+                                        style={{
+                                            fontSize: 16.5,
+                                            top: 5,
+                                            borderColor: "lightgrey",
+                                            borderWidth: 0.4,
+                                            width:"75%",
+                                            height: 45,
+                                            padding: 10,
+                                            borderRadius: 40,
+
+                                        }}
+                                        onSubmitEditing={postComment}
+                                    />
+                                    <View style={{ 
+                                        marginTop: 10,
+                                    }}>
+                                        <Button
+                                            onPress={postComment}
+                                            title='Post'
+                                        />
+                                    </View>
+                                </View>
+                        
                             </View>
-                       
                         </View>
-                    </View>
+                    </TouchableWithoutFeedback>
                 </KeyboardAvoidingView>
 
             </Modal>
 
+
             <Card key={posts.id}
                 containerStyle={{
-                    width: 390,
+                    width:ITEM_WIDTH,
                     borderColor: "grey",
                     borderWidth: 0,
                     borderBottomWidth: 0.5,
                     borderRightWidth: 0.5,
+                    //zIndex:100
                 }}
             > 
                 
@@ -475,6 +473,7 @@ export default function Posts({posts}) {
                                 style={styles.userPhoto}
                             />
                     </TouchableOpacity>
+                    
                     <Text style={{
                         marginTop: 9,
                         fontWeight: 'bold',
@@ -482,24 +481,7 @@ export default function Posts({posts}) {
                     }}>
                         {posts.user_name3}
                     </Text>                        
-                </View>                    
-                
-                {userId.id == posts.user ? (
-                    <Text
-                        onPress={() => setModalOptions(true)}
-                        style={{
-                            position: 'absolute',
-                            top: 10,
-                            left: 320
-                        }}
-                    >
-                        <MaterialCommunityIcons
-                            name="dots-horizontal"
-                            size={25}
-                        />
-                    </Text>
-
-                ) : (null)}                    
+                </View>               
                         
                 
                 <Card.Divider style={{
@@ -507,6 +489,7 @@ export default function Posts({posts}) {
                         borderColor: "grey",
                     }}
                 />
+
                 <Card.Image
                     style={styles.postImg}
                     source={{ uri: `${posts.post_img}` }}
@@ -556,7 +539,7 @@ export default function Posts({posts}) {
                                 width: 30,
                                 height: 30,
                                 borderRadius: 50,
-                                marginBottom: 5,
+                                //marginBottom: 5,
                                 marginRight: 8,
                             }}
                         />
@@ -575,8 +558,109 @@ export default function Posts({posts}) {
                 </TouchableOpacity>
                 {loading == false ?
                     (commentData.comments.filter((filter) => filter.post == posts.id).map((comment,i,array) => {
-                        if (i + 1 === array.length) {return (
-                            
+                        if (i+1=== array.length) {
+                            return (<>
+
+                                <Modal
+                                    animationType="slide"
+                                    transparent={true}
+                                    visible={modalCommentDelete}
+
+                                >
+                                    <TouchableWithoutFeedback 
+                                        onPressOut={()=>setModalCommentDelete(false)}>
+                                        <View style={styles.centeredView} >
+                                            <View style={styles.modalView}>
+
+                                                <Divider
+                                                    style={{
+                                                        borderWidth: 0,
+                                                        width: 375,
+                                                        borderColor: "white",
+                                                        padding: 8,
+                                                        borderBottomWidth:0,
+                                                    }}
+                                                >
+                                                    <Button
+                                                        onPress={()=>{
+                                                            try{
+                                                            axiosInstance.delete(`comment/${comment.id}/`).then((res) => {
+                                                                setModalCommentDelete(false);
+                                                                renderComment();
+
+                                                            })}catch(e){
+                                                                alert(e)
+                                                            }
+                                                        }}
+                                                        color="red"
+                                                        title='Delete'
+                                                    />
+                                                </Divider>
+                                            </View>
+                                        </View>
+
+                                        <View style={{
+                                            bottom: "42%",
+                                            alignItems: "center",
+
+                                        }} >
+                                            <View style={{
+                                                margin: 20,
+                                                borderRadius: 15,
+                                                backgroundColor: "white",
+                                                opacity: 1,
+                                                padding: 5,
+                                                alignItems: "center",
+                                                shadowColor: "black",
+                                                shadowOffset: {
+                                                    width: 0,
+                                                    height: 2
+                                                },
+                                                shadowRadius: 50,
+                                                elevation: 17
+                                            }}>
+                                                <Divider style={{
+                                                    borderWidth: 0,
+                                                    width: 375,
+                                                    borderColor: "grey",
+                                                    padding: 7,
+                                                    borderTopWidth: 0,
+                                                    borderBottomWidth:0
+                                                }} >
+                                                    <Button
+                                                        color="black"
+                                                        onPress={() => setModalCommentDelete(!modalCommentDelete)}
+                                                        title='Cancel'
+                                                    />
+                                                </Divider>
+                                            </View>
+                                        </View>
+                                    </TouchableWithoutFeedback>
+                                </Modal>
+
+                                {userId.id === comment.user ? (
+                                    <TouchableOpacity 
+                                        style={{
+                                            //position:"absolute",
+                                            //left:"55%",
+                                            alignSelf:"flex-end",
+                                            top:"4.5%",
+                                            zIndex:1,
+                                        }}
+                                        onPress={() =>setModalCommentDelete(true)}
+                                            
+                                     >
+                                        <Text
+                                            style={{
+                                                fontSize:12.5,
+                                            }}>
+                                            <MaterialCommunityIcons
+                                                name="dots-horizontal"
+                                                size={23.5}
+                                            />
+                                        </Text>
+                                    </TouchableOpacity>
+                            ): (null)}
                             <Comments
                                 key={comment.id}
                                 comment={comment}
@@ -591,7 +675,8 @@ export default function Posts({posts}) {
                                 lines={2}
                                 bottom={15}
                             />
-                        )}
+                            
+                        </>)}
                     })) :
                     (<Text style={{
                         alignSelf: 'center',
@@ -625,7 +710,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex:1,
-        marginBottom: 20,
+        marginBottom: 100,
     },
     postImg: {
         height: ITEM_HEIGHT,
@@ -642,6 +727,39 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
 
+    commentInput: {
+        fontSize: 17,
+        height: 50,
+        margin: 15,
+        width: 350,
+    },
+    CommentView: {
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    CommentModal: {
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        backgroundColor: "white",
+        opacity: 1,
+        padding: 5,
+        alignItems: "center",
+        shadowColor: "black",
+        shadowOpacity: 1,
+        shadowRadius: 150,
+    },
+
+    postCommentModal: {
+        height:400,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        backgroundColor: "white",
+        opacity:1,
+        padding: 5,
+        shadowColor: "black",
+        shadowOpacity: 1,
+        shadowRadius: 150,
+    },
     centeredView: {
         flex: 1,
         justifyContent: "center",
@@ -664,40 +782,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 100,
         elevation: 17
-    },
-
-    commentInput: {
-        fontSize: 17,
-        height: 50,
-        margin: 15,
-        width: 350,
-    },
-    CommentView: {
-        flex: 1,
-        justifyContent: 'flex-end',
-    },
-    CommentModal: {
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        backgroundColor: "white",
-        opacity: 0.95,
-        padding: 5,
-        alignItems: "center",
-        shadowColor: "black",
-        shadowOpacity: 1,
-        shadowRadius: 150,
-    },
-
-
-    postCommentModal: {
-        height:400,
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        backgroundColor: "white",
-        opacity: 0.95,
-        padding: 5,
-        shadowColor: "black",
-        shadowOpacity: 1,
-        shadowRadius: 150,
     },
 });

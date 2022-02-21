@@ -8,6 +8,7 @@ import {
     TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight,
     Platform, Dimensions, ImageBackground, TextInput, ScrollView,
 } from 'react-native';
+
 import { NativeRouter, Route, Link } from 'react-router-native';
 import axios from 'axios';
 import { Card, ListItem, Icon, SearchBar } from 'react-native-elements';
@@ -25,7 +26,6 @@ export default function Comments({rerender, comment, height, width, fontSize, fo
     const pub_date = (new Date(comment.pub_date)).toString().replace(/\S+\s(\S+)\s(\d+)\s(\d+)\s.*/, '$1 $2, $3'); 
     const [error, setError] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
-    const [modalDelete, setModalDelete] = React.useState(false);
 
 
     const [profilePhoto, setProfilePhoto] = React.useState({
@@ -58,16 +58,17 @@ export default function Comments({rerender, comment, height, width, fontSize, fo
     })
     const readData = async () => {
         try {
-            const user = await AsyncStorage.getItem('@username');
-            setUser({ username: user });
+            //const user = await AsyncStorage.getItem('@username');
+            //setUser({ username: user });
             var refresh_token = await AsyncStorage.getItem('refresh_token');
             var access_token = await AsyncStorage.getItem('access_token');
             var decode = jwt_decode(refresh_token);
             const Id = parseInt(decode.user_id);
-            setToken({ access_token })
+            setUserId({id:Id});
+            setToken({ access_token });
         } catch (e) {
-            alert(e);
-            alert('Failed to fetch the data from storage');
+            alert(e+"  "+'failed to fetch data');
+            setToken({access_token:null});
         }
     }
     const baseURL = 'https://branchappxzy.herokuapp.com/';
@@ -85,113 +86,44 @@ export default function Comments({rerender, comment, height, width, fontSize, fo
 
 
     React.useEffect(() => {
-        readData()
+        readData();
         axiosInstance.get(`profile_photo/${comment.user}/`).then((res) => {
             const Data = res.data;
             setProfilePhoto({ data: Data });
             setLoading(false);
-        })
-            .catch((err) => {
-                if (err = 'Request failed with status code 500') {
-                    setError(true)
-                }
-            });
+        }).catch((err) => {
+            if (err = 'Request failed with status code 500') {
+                setError(true)
+            }
+        });
 
+        // Anything in here is fired on component mount.
+    
+                
     }, [setProfilePhoto, setAllPosts,
         setLoading,setError
 
     ]);
 
-    const deleteComment = () => {
-        try {
-            axiosInstance.delete(`comment/${comment.id}/`).then((res) => {
-                alert("deleted")
-            });
-        } catch (err) {
-            alert(JSON.stringify(err));
-        }
-    };
     const linkToOthers = () => {
         navigation.navigate('OthersProfile', {
             userid: comment.user,
-            name: comment.user_name1
+            name: comment.user_name1,
+            allow:'positive'
         })
 
     }
 
     return (
         <SafeAreaView key={comment.id}>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalDelete}
 
-            >
-                <View style={styles.centeredView} >
-                    <View style={styles.modalView}>
-
-                        <Divider
-                            style={{
-                                borderWidth: 0,
-                                width: 375,
-                                borderColor: "white",
-                                padding: 8,
-                                borderBottomWidth:0,
-                            }}
-                        >
-                            <Button
-                                onPress={deleteComment}
-                                color="red"
-                                title='Delete'
-                            />
-                        </Divider>
-                    </View>
-                </View>
-
-                <View style={{
-                    bottom: 300,
-                    alignItems: "center",
-
-                }} >
-                    <View style={{
-                        margin: 20,
-                        borderRadius: 15,
-                        backgroundColor: "white",
-                        opacity: 1,
-                        padding: 5,
-                        alignItems: "center",
-                        shadowColor: "black",
-                        shadowOffset: {
-                            width: 0,
-                            height: 2
-                        },
-                        shadowRadius: 50,
-                        elevation: 17
-                    }}>
-                        <Divider style={{
-                            borderWidth: 0,
-                            width: 375,
-                            borderColor: "grey",
-                            padding: 7,
-                            borderTopWidth: 0,
-                            borderBottomWidth:0
-                        }} >
-                            <Button
-                                color="black"
-                                onPress={() => setModalDelete(!modalDelete)}
-                                title='Cancel'
-                            />
-                        </Divider>
-                    </View>
-                </View>
-
-            </Modal>
             <View
                 style={{
                     marginTop: 10,
                     flexDirection: 'row',
                     margin: margin,
                     marginBottom: marginBottom
+                    
                 }}>
                 <TouchableOpacity onPress={linkToOthers}>
                     <Image
@@ -221,26 +153,10 @@ export default function Comments({rerender, comment, height, width, fontSize, fo
                     style={{
                         fontSize: fontSize2,
                         opacity: 0.4,
+
                     }}>
                     {pub_date}
                 </Text>
-
-                {userId.id === comment.user ? (
-                    <TouchableOpacity onPress={() => setModalDelete(true)} >
-                        <Text
-                            style={{
-                                fontSize: fontSize2,
-                                marginLeft:125,
-                                bottom: 4,
-                                color:"red"
-                            }}>
-                            <MaterialCommunityIcons
-                                name="delete"
-                                size={23}
-                            />
-                        </Text>
-                    </TouchableOpacity>
-                ): (null)}
 
             </View>
 
@@ -251,6 +167,7 @@ export default function Comments({rerender, comment, height, width, fontSize, fo
                     bottom:bottom,
                     position: 'relative',
                     marginLeft: 60,
+
 
                 }}>
                 {comment.comment_text}
@@ -275,7 +192,6 @@ const styles = StyleSheet.create({
 
     },
     modalView: {
-
         margin: 20,
         borderRadius: 15,
         backgroundColor: "white",

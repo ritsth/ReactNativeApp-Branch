@@ -3,16 +3,25 @@ import {
     StyleSheet,
     useEffect,
     useState, KeyboardAvoidingView,
-    Text, Button, Keyboard,
+    Text, Button, Keyboard,AsyncStorage,
     View, Alert, Image, SafeAreaView,
     TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight,
     Platform, Dimensions, ImageBackground, TextInput
 } from 'react-native';
+//import { AsyncStorage} from '@react-native-community/async-storage';
 import { useDimensions, useDeviceOrientation } from '@react-native-community/hooks';
-import { NativeRouter, Route, Link } from 'react-router-native';
+import { NativeRouter, Route, Link,useHistory } from 'react-router-native';
 import axios from 'axios';
 
 import colors from '../config/colors';
+
+
+const screenWidth = Dimensions.get('screen').width;
+const screenHeight = Dimensions.get('screen').height;
+const mathBox=((screenWidth+screenHeight)/20);
+const mathFontInputs=((screenWidth+screenHeight)/70);
+const mathFont=((screenWidth+screenHeight)/80);
+const mathFontLogin=((screenWidth+screenHeight)/40);
 
 export default function SigninPage(props) {
 
@@ -23,16 +32,18 @@ export default function SigninPage(props) {
     const [email, onChangeEmail] = React.useState(null);
     const [confirmpassword, onChangeConfirmPassword] = React.useState(null);
     const history = useHistory();
-
+    
+    /*
     const [user, setUser] = React.useState({
         username: '',
-    });
+    });    
     const [userId, setUserId] = React.useState({
         id: ''
     });
     const [token, setToken] = React.useState({
         access_token: ''
     })
+
     const readData = async () => {
         try {
             var refresh_token = await AsyncStorage.getItem('refresh_token');
@@ -43,20 +54,23 @@ export default function SigninPage(props) {
             alert('Failed to fetch the data from storage');
         }
     }
+    */
+
     const baseURL = 'https://branchappxzy.herokuapp.com/';
     const axiosInstance = axios.create({
         baseURL: baseURL,
         timeout: 7000,
+        /*
         headers: {
             Authorization: token.access_token
                 ? 'JWT ' + token.access_token
                 : null,
             'Content-Type': 'application/json',
             accept: 'application/json',
-        },
+        },*/
     });
     React.useEffect(() => {
-        readData()
+        //readData()
 
     }, []);
 
@@ -76,19 +90,25 @@ export default function SigninPage(props) {
                 alert(err)
             });
     };
+    
+    const handlePushLogin=()=>{
+        history.push('/login');
+    }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView >
-                <ImageBackground style={styles.bgImage} resizeMode="contain"
+            <View >
+                <ImageBackground style={styles.bgImage} //resizeMode="contain"
                     source={{ uri: 'https://i.pinimg.com/564x/34/4c/ae/344caefd02f3689d50c53f779eacf1f4.jpg' }}>
                     <View style={styles.options}>
                     <Link to="/"
                         style={{
-                            marginLeft: 17,
+                            marginTop:"10%",
+                            marginRight:`30%`,
                             backgroundColor: colors.primary,
-                            width: 70,
-                            height: 70
+                            width: mathBox,
+                            height:mathBox,
+                            justifyContent:"center",
                         }}
                         underlayColor={colors.Linkunderlay}>
                         <Text style={styles.optionText}
@@ -96,10 +116,12 @@ export default function SigninPage(props) {
                     </Link>
                     <Link to="/feed"
                         style={{
-                            marginLeft:240,
+                            marginTop:"10%",
+                            marginLeft:`30%`,
                             backgroundColor: colors.secondary,
-                            width: 70,
-                            height: 70
+                            width: mathBox,
+                            height:mathBox,
+                            justifyContent:"center",
                         }}
                         underlayColor={colors.Linkunderlay}>
                         <Text style={styles.optionText}>
@@ -115,7 +137,6 @@ export default function SigninPage(props) {
                             <Text style={styles.header}>Sign up</Text>
                             <View style={styles.line1 }>
                                 <TextInput
-                             
                                     autoFocus={true}
                                     textContentType="name"
                                     style={styles.inputLine1}
@@ -158,13 +179,23 @@ export default function SigninPage(props) {
                              />
                             </View>
                             <View style={styles.btnContainer}>
-                                <Button title="Submit" onPress={handleSubmit} />
+                                <Button title="Signin" onPress={handleSubmit} />
                             </View>
-
+                            <Text
+                                    style={{
+                                        alignSelf:"center",
+                                    }}
+                                >
+                                    <Button color="black" 
+                                    title="Already have an account?"/>
+                                    
+                                    <Button title="Click here" 
+                                    onPress={handlePushLogin} />                              
+                                </Text>
                         </View>
                     </KeyboardAvoidingView>
                 </ImageBackground>
-            </SafeAreaView>
+            </View>
         </TouchableWithoutFeedback>
     );
 }
@@ -174,73 +205,76 @@ const styles = StyleSheet.create({
         flex: 1
     },
     inner: {
-        padding: 24,
+        padding:"10%",
         flex: 1,
         justifyContent: "space-around"
     },
     header: {
-        fontSize: 36,
-        marginBottom: 48,
-        bottom:180,
+        fontSize:mathFontLogin,
+        //marginBottom: 48,
+        //bottom:180,
     },
     textInput: {
-        height: 40,
+        height: 30,
         borderColor:colors.black,
         borderBottomWidth: 1,
-        marginBottom: 36,
-        fontSize: 17,
-        bottom:140,
+        //marginBottom: 36,
+        fontSize: mathFontInputs,
+        width:"100%"
+        //bottom:140,
     },
     btnContainer: {
         backgroundColor: colors.white,
-        marginTop: 1,
-        bottom: 25,
-        right:20,
+        alignSelf: "center",
+        width:"100%",
+        fontSize:mathFontInputs
+        //marginTop: 1,
+        //bottom: 25,
+        //right:20,
     },
 
 
     options: {
-        flex: 1,
+        justifyContent:"center",
         flexDirection: "row",
     },
     line1: {
-        flex: 1,
+        //flex: 1,
         flexDirection: "row",
     },
     line2: {
-        flex: 1,
+        //flex: 1,
         flexDirection: "row",
 
     },
     inputLine1: {
-        fontSize: 18,
-        height: 25,
+        fontSize: mathFontInputs,
+        height:30,
         borderColor: colors.black,
         borderBottomWidth: 1,
-        margin: 4,
-        marginBottom:36,
-        bottom:200,
-        width:195,
+        margin: "1%",
+        //marginBottom:36,
+        //bottom:200,
+        width:"50%",
     },
     inputLine2: {
-        fontSize: 18,
-        height: 40,
+        fontSize:mathFontInputs,
+        height: 30,
         borderColor: colors.black,
         borderBottomWidth: 1,
-        margin: 4,
-        bottom: 150,
-        width:195,
+        margin:"1%",
+        //bottom: 150,
+        width:"50%",
 
     },
     bgImage: {
-        width: 455,
-        height: 880
+        width:"100%",
+        height:"100%"
 
     },
     optionText: {
         alignSelf: "center",
-        marginTop: "40%",
-        fontSize: 15,
+        fontSize:mathFont,
         fontFamily: "Helvetica",
         fontWeight: "bold",
         color: colors.black

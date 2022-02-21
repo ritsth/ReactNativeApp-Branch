@@ -8,6 +8,7 @@ import {
     TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight,
     Platform, Dimensions, ImageBackground, TextInput, ScrollView,
 } from 'react-native';
+
 import { useDimensions, useDeviceOrientation } from '@react-native-community/hooks';
 import { NativeRouter, Route, Link } from 'react-router-native';
 import axios from 'axios';
@@ -18,6 +19,10 @@ import jwt_decode from 'jwt-decode';
 import colors from '../config/colors';
 import Posts from './posts';
 
+
+const screenWidth = Dimensions.get('screen').width;
+const screenHeight = Dimensions.get('screen').height;
+const mathFontoptions=((screenWidth+screenHeight)/80);
 export default function AddPostsPage({ route }) {
     const [image, setImage] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
@@ -73,8 +78,8 @@ export default function AddPostsPage({ route }) {
             setUserId({ id: Id });
             setToken({ access_token });
         } catch (e) {
-            alert(e);
-            alert('Failed to fetch the data from storage');
+            alert(e+'  '+'Failed to fetch the data from storage');
+            setToken({access_token :null});
         }
     };
     const baseURL = 'https://branchappxzy.herokuapp.com/';
@@ -128,100 +133,185 @@ export default function AddPostsPage({ route }) {
         }
     };
 
-    return (
-
-        <ScrollView keyboardShouldPersistTaps={'handled'} scrollEnabled={false}>
-            <View onPress={Keyboard.dismiss} >
-                <Text
-                    style={{
-                        color: colors.secondary,
-                        fontSize: 20,
-                        fontWeight: "bold",
-                        marginTop:30,
-                        marginLeft:10
-                    }}
-                >
-                    Select your plants photo: 
-                </Text>  
-                <View style={styles.inner} >
-                    {/*
-                    <Text 
+    return (<>
+        {token.access_token == null?(
+            <View>
+                <Text>
+                    Login First or make an acc to post
+                </Text>
+            </View>
+        ):(
+        plantData.plant.filter(p => p.user == userId.id)!=null?
+        (
+            <View
+            style={{
+                justifyContent:"center",
+                alignItems:"center"
+            }}
+        >
+            <Text
+                style={{
+                    alignSelf:'center',
+                    fontSize:mathFontoptions,
+                }}
+            
+            >                
+                <Button color="black" title="You haven't yet connected any of your plant"/>
+                <Button title="add your plant first." 
+                //onPress={handlePushLogin} 
+                />  
+            </Text>
+        </View>
+        )
+        :(
+            <ScrollView keyboardShouldPersistTaps={'handled'} scrollEnabled={true}>
+                <View onPress={Keyboard.dismiss} >
+                    <Text
                         style={{
-                            fontSize:30
-                        }}>
-                        Login
-                    </Text>
-                    */} 
-                    <Picker
-                        selectedValue={selectedValue}
-                        style={{
-                            borderWidth:1.5,
-                            borderColor: "lightgrey",
-                            borderRadius:90
+                            color: colors.secondary,
+                            fontSize: 20,
+                            fontWeight: "bold",
+                            marginTop:30,
+                            marginLeft:10
                         }}
-                        onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
                     >
-                        <Picker.Item 
-                            enabled={false}
-                            value='1'
-                            label="Select the plants type"
-                        />
-                        {plantData.plant.filter(p => p.user == userId.id).map((plant) =>
-                            <Picker.Item required key={plant.id}
-                                value={plant.id}
-                                label={plant.type_text}
-                            />
-                        )}
-                        
-                    </Picker>
-                    <View style={{
-                        flexDirection: "row",
-                        flexWrap: "wrap",
-                        marginTop:30
-                    }}>
-                    {image &&<>
-                        <Image source={{ uri: image }}
+                        Select your plant: 
+                    </Text>  
+                    <View style={styles.inner} >
+                        {/*
+                        <Text 
                             style={{
-                                width: 70,
-                                height: 70,
+                                fontSize:30
+                            }}>
+                            Login
+                        </Text>
+                        */} 
+                        <Picker
+                            selectedValue={selectedValue}
+                            style={{
+                                borderWidth:1.5,
+                                borderColor: "lightgrey",
+                                borderRadius:90
                             }}
-                        />
-                            <View style={{ width:300 }}>
-                                <TextInput 
-                                placeholder="Write a caption ..."
-                                style={styles.textInput}
-                                onChangeText={onChangeStatus}
-
+                            onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
+                        >
+                        {/* <Picker.Item 
+                                enabled={false}
+                                value='1'
+                                label="Select the plants type"
+                            />*/}
+                            {plantData.plant.filter(p => p.user == userId.id).map((plant) =>
+                                
+                                <Picker.Item required key={plant.id}
+                                    value={plant.id}
+                                    label={plant.type_text}
                                 />
-                            </View>
-                        </>}
-                        
+                            )}
+                            
+                        </Picker>
+                        <View style={{
+                            flexDirection: "row",
+                            flexWrap: "wrap",
+                            marginTop:30
+                        }}>
+                        {image &&<>
+                            <Image source={{ uri: image }}
+                                style={{
+                                    width: 70,
+                                    height: 70,
+                                }}
+                            />
+                                <View style={{ width:300 }}>
+                                    <TextInput 
+                                    placeholder="Write a caption ..."
+                                    style={styles.textInput}
+                                    onChangeText={onChangeStatus}
+
+                                    />
+                                </View>
+                            </>}
+                            
+                        </View>
                     </View>
-                </View>
-                <Text
-                    style={{
-                        color: colors.secondary,
-                        fontSize: 20,
-                        padding: 10,
-                        fontWeight: "bold"
-                    }}
-                >
-                    Select your plants photo: 
-                </Text>  
-                <TouchableOpacity onPress={pickImage}>
-                    <ImageBackground 
+                    <Text
+                        style={{
+                            color: colors.secondary,
+                            fontSize: 20,
+                            padding: 10,
+                            fontWeight: "bold"
+                        }}
+                    >
+                        Select your plants photo: 
+                    </Text>  
+                    <TouchableOpacity onPress={pickImage}>
+                        <ImageBackground 
+                            style={{
+                                padding: 20,
+                                margin: 15,
+                            }}
+                            borderRadius={10}
+                            source={{ uri: 'https://i.pinimg.com/564x/c6/d0/93/c6d0938708ca400c8fbec7ce2add9d3c.jpg' }}>
+                            <View
+                                style={{
+                                    //flex: 1,
+                                    //alignItems: 'center',
+                                    justifyContent: 'center',
+                                
+
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: colors.black,
+                                        fontSize: 15,
+                                    }}
+                                >
+                                    Upload from
+                                </Text>  
+                                <Text
+                                    style={{
+                                        color: colors.black,
+                                        fontWeight: 'bold',
+                                        fontSize: 25,
+                                        marginLeft:15
+                                    }}
+                                >
+                                    Gallery
+                                </Text>  
+                                
+
+                            </View>
+                        </ImageBackground>
+                    </TouchableOpacity>
+                    
+                        <View style={{
+                            backgroundColor:colors.secondary,
+                            borderRadius: 30,
+                            width:"80%",
+                            alignSelf: "center",
+                            marginTop:20
+                        }}>
+                            <Button
+                                color={colors.white}
+                                //onPress={() => setModalViewComment(true)}
+                                title='Post'
+                            />
+                        </View>
+                    {/*
+                    <ImageBackground
                         style={{
                             padding: 20,
-                            margin: 15,
+                            margin: 10,
                         }}
                         borderRadius={10}
-                        source={{ uri: 'https://i.pinimg.com/564x/c6/d0/93/c6d0938708ca400c8fbec7ce2add9d3c.jpg' }}>
+                        source={{
+                            uri: 'https://i.pinimg.com/564x/8f/8f/52/8f8f528a8aa964eb01bb6c8f116699c3.jpg' }}>
                         <View
                             style={{
                                 //flex: 1,
                                 //alignItems: 'center',
                                 justifyContent: 'center',
-                            
+
 
                             }}
                         >
@@ -231,80 +321,39 @@ export default function AddPostsPage({ route }) {
                                     fontSize: 15,
                                 }}
                             >
-                                Upload from
-                            </Text>  
+                                Capture from
+                            </Text>
                             <Text
                                 style={{
                                     color: colors.black,
                                     fontWeight: 'bold',
                                     fontSize: 25,
-                                    marginLeft:15
+                                    marginLeft: 15
                                 }}
                             >
-                                Gallery
-                            </Text>  
-                            
+                                Camera
+                            </Text>
+                            {image &&
+                                <Image source={{ uri: image }}
+                                    style={{
+                                        width: 200,
+                                        height: 200
+                                    }}
+                                />}
 
                         </View>
                     </ImageBackground>
-                </TouchableOpacity>
-       
-                {/*
-                <ImageBackground
-                    style={{
-                        padding: 20,
-                        margin: 10,
-                    }}
-                    borderRadius={10}
-                    source={{
-                        uri: 'https://i.pinimg.com/564x/8f/8f/52/8f8f528a8aa964eb01bb6c8f116699c3.jpg' }}>
-                    <View
-                        style={{
-                            //flex: 1,
-                            //alignItems: 'center',
-                            justifyContent: 'center',
-
-
-                        }}
-                    >
-                        <Text
-                            style={{
-                                color: colors.black,
-                                fontSize: 15,
-                            }}
-                        >
-                            Capture from
-                        </Text>
-                        <Text
-                            style={{
-                                color: colors.black,
-                                fontWeight: 'bold',
-                                fontSize: 25,
-                                marginLeft: 15
-                            }}
-                        >
-                            Camera
-                        </Text>
-                        {image &&
-                            <Image source={{ uri: image }}
-                                style={{
-                                    width: 200,
-                                    height: 200
-                                }}
-                            />}
-
-                    </View>
-                </ImageBackground>
-                */}
-            </View>
-        </ScrollView>
-    );
+                    */}
+                </View>
+            </ScrollView>
+        ))}
+    </>);
 }
 
 const styles = StyleSheet.create({
 
     inner: {
-        padding:20,
+        padding:10,
     },
 
     textInput: {

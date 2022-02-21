@@ -6,6 +6,7 @@ import {
     TouchableOpacity, TouchableWithoutFeedback, TouchableHighlight,
     Platform, Dimensions, ImageBackground, TextInput, Keyboard
 } from 'react-native';
+import { useDimensions, useDeviceOrientation } from '@react-native-community/hooks';
 import { NativeRouter, Route, Link, useHistory } from 'react-router-native';
 import { useNavigation, useLinkTo, } from '@react-navigation/native';
 import axios from 'axios';
@@ -13,6 +14,12 @@ import jwt_decode from 'jwt-decode';
 
 import colors from '../config/colors';
 
+const screenWidth = Dimensions.get('screen').width;
+const screenHeight = Dimensions.get('screen').height;
+const mathBox=((screenWidth+screenHeight)/20);
+const mathFontInputs=((screenWidth+screenHeight)/70);
+const mathFont=((screenWidth+screenHeight)/80);
+const mathFontLogin=((screenWidth+screenHeight)/40);
 export default function LoginPage(props) {
     const [username, onChangeUsername] = React.useState(null);
     const [password, onChangePassword] = React.useState(null);
@@ -55,7 +62,12 @@ export default function LoginPage(props) {
 
     }, []);
 
-    const handleSubmit = async (event) => {
+    const handlePushSignin=()=>{
+        history.push('/signin');
+    }
+
+    const handleSubmit = (event) => {
+        try{
         axiosInstance
             .post('token/', {
                 username: username,
@@ -66,8 +78,10 @@ export default function LoginPage(props) {
                     var access_token = await AsyncStorage.setItem('access_token', res.data.access);
                     var refresh_token = await AsyncStorage.setItem('refresh_token', res.data.refresh);
                     var username_data = await AsyncStorage.setItem('@username', username);
-                    /*var decode = jwt_decode(refresh_token);
-                    await AsyncStorage.setItem('current_user_id', decode.user_id);*/
+                    
+                    //var decode = jwt_decode(res.data.refresh);
+                    //const Id = parseInt(decode.user_id);
+                    //var y=await AsyncStorage.setItem('current_user_id',1);
                     axios.defaults.headers['Authorization'] =
                         'JWT ' + access_token;
                     alert('Data successfully saved');
@@ -76,26 +90,26 @@ export default function LoginPage(props) {
                     alert(e)
                 }
 
-                //console.log(res);
-
             })
+        } catch(e){
+                alert(e);
+            }
     }; 
-
-
-
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView style={styles.container}>
-                <ImageBackground style={styles.bgImage} resizeMode="contain"
+            <View style={styles.container}>
+                <ImageBackground style={styles.bgImage} //resizeMode="contain"
                     source={{ uri: 'https://i.pinimg.com/564x/34/4c/ae/344caefd02f3689d50c53f779eacf1f4.jpg' }}>
                     <View style={styles.options}>
                         <Link to="/"
                             style={{
-                                marginLeft: 17,
+                                marginTop:"10%",
+                                marginRight:`30%`,
                                 backgroundColor: colors.primary,
-                                width: 70,
-                                height: 70
+                                width: mathBox,
+                                height:mathBox,
+                                justifyContent:"center",
                             }}
                             underlayColor={colors.Linkunderlay}>
                             <Text style={styles.optionText}
@@ -103,10 +117,13 @@ export default function LoginPage(props) {
                         </Link>
                         <Link to="/feed"
                             style={{
-                                marginLeft: 240,
+                                marginTop:"10%",
+                                marginLeft:`30%`,
                                 backgroundColor: colors.secondary,
-                                width: 70,
-                                height: 70
+                                width: mathBox,
+                                height:mathBox,
+                                justifyContent:"center",
+
                             }}
                             underlayColor={colors.Linkunderlay}>
                             <Text style={styles.optionText}>
@@ -135,68 +152,71 @@ export default function LoginPage(props) {
                                     style={styles.textInput}
                                     onChangeText={onChangePassword}
                                 />
-                            <View style={styles.btnContainer}>
-                                <Button title="Submit" onPress={handleSubmit} />
+                                <View style={styles.btnContainer}>
+                                    <Button title="Login" onPress={handleSubmit} />
+                                    
                                 </View>
+                                <Text
+                                    style={{
+                                        alignSelf:"center",
+                                    }}
+                                >
+                                    <Button color="black" 
+                                    title="Don't have an account?"/>
+                                    
+                                    <Button title="Click here" 
+                                    onPress={handlePushSignin} />                              
+                                </Text>
                             </View>
                     
                     </KeyboardAvoidingView>
 
                 </ImageBackground>
-            </SafeAreaView>
+            </View>
         </TouchableWithoutFeedback>
         );
 }
 
 const styles = StyleSheet.create({
     options: {
-        flex: 1,
+        justifyContent:"center",
         flexDirection: "row",
   
     },
 
     inner: {
-        padding: 24,
+        padding:"10%",
         flex: 1,
         justifyContent: "space-around"
     },
     header: {
-        fontSize: 36,
-        marginBottom: 50,
-        bottom:70,
+        fontSize:mathFontLogin,
+        fontWeight:"500"
     },
     textInput: {
-        fontSize:17,
-        height: 40,
+        fontSize:mathFontInputs,
+        height: 30,
         borderColor: colors.black,
         borderBottomWidth: 1,
-        marginBottom: 36,
-        bottom: 100,
-        margin: 30,
-        width: 400,
+        width:"100%",
     },
     btnContainer: {
         alignSelf: "center",
-        backgroundColor: colors.white,
-        marginTop: 12,
-        right: 20,
-        bottom: 80,
-        width:500,
+        backgroundColor:colors.white,
+        width:"100%",
+        fontSize:mathFontInputs
     },
 
     container: {
         flex: 1,
     },
     bgImage: {
-        flex: 1,
-        width: 455,
-        height: 880
-
+        width:"100%",
+        height:"100%"
     },
     optionText: {
         alignSelf: "center",
-        marginTop: "40%",
-        fontSize: 15,
+        fontSize:mathFont,
         fontFamily: "Helvetica",
         fontWeight: "bold",
         color: colors.black

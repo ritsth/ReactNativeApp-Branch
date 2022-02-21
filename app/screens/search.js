@@ -11,10 +11,6 @@ import {
 import { NativeRouter, Route, Link } from 'react-router-native';
 import axios from 'axios';
 import { Card, ListItem, Icon, SearchBar } from 'react-native-elements';
-import { NavigationContainer, useNavigation, } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import jwt_decode from 'jwt-decode';
 
@@ -23,7 +19,6 @@ import colors from '../config/colors';
 
 export default function SearchPage(props) {
     const [searchKeyword, onChangeSearchKeyword] = React.useState(null);
-    const Stack = createNativeStackNavigator();
 
     const [error, setError] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
@@ -94,6 +89,10 @@ export default function SearchPage(props) {
             post: ''
         }],
     });
+    
+    React.useEffect(()=>{
+
+    },[]);
 
     return (
         <SafeAreaView
@@ -121,7 +120,7 @@ export default function SearchPage(props) {
                 inputStyle={{ color: "black" }}
                 placeholder="Search for plant type . . ."
                 onChangeText={onChangeSearchKeyword}
-                value={onChangeSearchKeyword}
+                value={searchKeyword}
             />
         </SafeAreaView>
 

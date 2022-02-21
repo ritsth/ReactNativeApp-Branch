@@ -1,35 +1,80 @@
 import React from 'react';
 import {
-    StyleSheet, Text, Button,
+    StyleSheet, Text, Button,AsyncStorage,
     View, Alert, Image, SafeAreaView,
     TouchableOpacity, TouchableWithoutFeedback,
     TouchableHighlight, Platform, Dimensions,
     ImageBackground, Linking
 } from 'react-native';
 import { useDimensions, useDeviceOrientation } from '@react-native-community/hooks';
-import { NativeRouter, Route, Link } from 'react-router-native';
+import { NativeRouter, Route, Link,useHistory } from 'react-router-native';
+import jwt_decode from 'jwt-decode';
+import axios from 'axios';
 
 import colors from '../config/colors';
 
+
+const screenWidth = Dimensions.get('screen').width;
+const screenHeight = Dimensions.get('screen').height;
+const mathLogo=((screenWidth+screenHeight)/10);
+const mathFont=((screenWidth+screenHeight)/100);
+const mathFontLogins=((screenWidth+screenHeight)/46);
+
 export default function Welcome (props) {
+    const history = useHistory();
     const handle = () => { alert(' button Pressed!') }
     const { landscape } = useDeviceOrientation();
-    return (
-        <SafeAreaView style={styles.container}>
-            <ImageBackground style={styles.bgImage} resizeMode="contain"
-                source={{ uri: 'https://i.pinimg.com/736x/35/b9/cb/35b9cbd5b61a78f15aefbe63d339ac18.jpg' }}>
+
+    const [token, setToken] = React.useState({
+        access_token: ''
+    })
+    const [userId, setUserId] = React.useState({
+        id: 0
+    });    
+    const readData = async () => {
+        try {
+            
+            //var refresh_token = await AsyncStorage.getItem('refresh_token');
+            var access_token = await AsyncStorage.getItem('access_token');
+            //var decode = jwt_decode(refresh_token);
+            //var id = parseInt(decode.user_id);
+            //setUserId({id});
+            access_token != null?(
+                setToken({ access_token })               
+            ):(null)
+
+        } catch (e) {
+            alert(e+'  '+'Failed to fetch the data from storage');
+            setToken({access_token:null});
+        }
+           
+    }
+    React.useEffect(() => {
+        readData();
+        
+    }, []);
+
+    pushFeed=()=>{
+        history.push('/feed');
+    }
+    return (<>
+        {token.access_token == '' ?(
+        <View style={styles.container}>
+            <ImageBackground style={styles.bgImage} //resizeMode="cover"
+                source={{ uri: 'https://i.pinimg.com/564x/35/b9/cb/35b9cbd5b61a78f15aefbe63d339ac18.jpg' }}>
                 <Image source={require('../assets/logo1.png')}
                     style={{
                         margin: 13,
-                        marginTop: 40,
+                        marginTop: 80,
                         flexDirection: "row",
                         alignSelf: "center",
-                        width: 120,
-                        height: 120
+                        width:mathLogo,
+                        height:mathLogo
                     }}
                 />
                 <Text
                     style={{
+                        fontSize:mathFont,
                         flex: 1,
                         flexDirection: "column",
                         alignSelf: "center",
@@ -39,7 +84,7 @@ export default function Welcome (props) {
                 </Text>
                 <Link to="/login"
                     style={{
-                        alignSelf: "flex-end",
+                        justifyContent:"center",
                         width: "100%",
                         height: "10%",
                         backgroundColor: colors.primary
@@ -53,7 +98,7 @@ export default function Welcome (props) {
                 </Link>
                 <Link to="/signin"
                     style={{
-                        alignSelf: "flex-end",
+                        justifyContent:"center",
                         width: "100%",
                         height: "10%",
                         backgroundColor: colors.secondary
@@ -67,8 +112,9 @@ export default function Welcome (props) {
 
             </ImageBackground>
 
-        </SafeAreaView>
-    );
+        </View>):
+        (pushFeed())}
+    </>);
 }
 
 const styles = StyleSheet.create({
@@ -78,17 +124,15 @@ const styles = StyleSheet.create({
     bgImage: {
         flex: 1,
         justifyContent: "center",
-        width: 435,
-        height:650
+        width: "100%",
+        height:"100%"
 
     },
     logins: {
-        fontSize: 26,
+        fontSize: mathFontLogins,
         fontFamily: "Helvetica",
         fontWeight: "bold",
-        marginTop: 20,
         alignSelf: "center",
-        marginRight:25,
         color: colors.TextLavender,
 
     },

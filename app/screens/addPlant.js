@@ -57,15 +57,15 @@ export default function AddPlant(){
     setIsLoading(true);
 
     // scan devices
-    //manager.startDeviceScan(null, null, (error, device) => {
-     // if (error) {
-     //   return alert(error);
-     // }
+    manager.startDeviceScan(null, null, (error, device) => {
+     if (error) {
+       return alert(error);
+      }
       // if a device is detected add the device to the list by dispatching the action into the reducer
       //if (scannedDevice) {
         //dispatch({ type: 'ADD_DEVICE', payload: scannedDevice });
       //}
-    //});
+    }); 
 
     // stop scanning devices after 5 seconds
     setTimeout(() => {

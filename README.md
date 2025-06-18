@@ -11,7 +11,9 @@ Welcome to **ReactNativeApp-Branch**, a React Native-based plant-focused social 
 
 2. **Image Classification:**
    - A TensorFlow-based image classification model is integrated to identify plant species.
+   - Leveraged a TensorFlow image classification model trained on a dataset of over 200 plant species.
    - Simply snap a photo of a plant to learn everything you need for its care.
+
 
 3. **Social Networking:**
    - Create user profiles to upload plant photos.
@@ -22,20 +24,13 @@ Welcome to **ReactNativeApp-Branch**, a React Native-based plant-focused social 
 
 ---
 
-## **Technical Highlights**
+## Tech Stack
 
-- **Machine Learning Model:**
-   - Leveraged a TensorFlow image classification model trained on a dataset of over 200 plant species.
-   - Enables precise identification of plants through photos.
-
-- **React Native Framework:**
-   - Provides a smooth and responsive cross-platform experience.
-
-- **Bluetooth Integration:**
-   - Seamlessly connects with Bluetooth devices for timely notifications.
-
-- **Backend & Data Management:**
-   - Efficiently handles user data, posts, and reminders to ensure a user-friendly experience using Django REST API and AWS S3.
+- **Frontend**: React Native
+- **Backend**: Django REST Framework
+- **Database**: AWS S3 for storage
+- **Sensor Integration**: Arduino, Bluetooth module, Humidity sensor
+- **API**: Django REST API
 
 ---
 

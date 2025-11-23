@@ -50,6 +50,6 @@ Welcome to **ReactNativeApp-Branch**, a React Native-based plant-focused social 
 This project is licensed under the MIT License.
 
 ## Links
-Backend Code: [GitHub Repository](https://github.com/ritsth/branchxpp)
+Backend Code: [branchxpp-Backend](https://github.com/ritsth/branchxpp)
 LinkedIn: [Ritika Shrestha](https://www.linkedin.com/in/ritika-shrestha-817555252/))
    
